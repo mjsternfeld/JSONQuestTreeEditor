@@ -11,7 +11,7 @@ const data = computed(() => props.data)
 //fields relevant to the output json
 const description = computed<string>(() => data.value.description)
 const isRequired = computed<boolean>(() => data.value.isRequired)
-
+const isEndNode = computed<boolean>(() => data.value.isEndNode)
 
 const handleConnectable = () => {return true;}
 
@@ -27,12 +27,12 @@ const handleConnectable = () => {return true;}
 
     <Handle :id="`${id}-target-normal`" class="handle-top" type="target" :position="Position.Top" :data="{handleType: 'normal'}" :connectable="handleConnectable"/>
     <!-- only allow output edges if this isn't an exit node -->
-    <Handle v-if="!isRequired" :id="`${id}-source-normal`" class="handle-bottom" type="source" :position="Position.Bottom" :data="{handleType: 'normal'}" :connectable="handleConnectable"/>
+    <Handle v-if="!isEndNode" :id="`${id}-source-normal`" class="handle-bottom" type="source" :position="Position.Bottom" :data="{handleType: 'normal'}" :connectable="handleConnectable"/>
     
 
     <!--Handles for describing mutex relationships between quest nodes (objectives)-->
     <!--Mutex is not transitive! You have to connect ALL the nodes this node is mutually exclusive with-->
-    <!--This also means you ha-->
+    <!--Mutex is however symmetrical. Therefore, creating a mutex edge from A to B automatically creates an additional edge from B to A-->
     <Handle class="handle-left" :id="`${id}-target-mutex`" type="target" :position="Position.Left" :data="{handleType: 'mutex'}" :connectable="handleConnectable"/>
     <Handle class="handle-right" :id="`${id}-source-mutex`" type="source" :position="Position.Left" :data="{handleType: 'mutex'}" :connectable="handleConnectable"/> 
 

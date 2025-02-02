@@ -84,11 +84,44 @@ const edges = ref<Edge[]>([
 ])
 
 
+interface OutputNode {
+  id: number;
+  description: string;
+  isRequired: boolean;
+  isEndNode: boolean;
+  successors: number[];
+  mutuallyExclusiveWith: number[];
+}
+
+
 const handleImport = () => {
   console.log('Import button clicked');
 }
 const handleExport = () => {
-  console.log('Export button clicked');
+
+  const outputNodes: OutputNode[] = nodes.value.map(node => ({
+    id: parseInt(node.id),
+    description: node.data.description || '',
+    isRequired: node.data.isRequired,
+    isEndNode: node.data.isEndNode,
+    successors: edges.value
+      .filter(edge => edge.source === node.id)
+      .map(edge => parseInt(edge.target)),
+    mutuallyExclusiveWith: edges.value
+      .filter(edge => edge.type === 'mutex' && edge.source === node.id)
+      .map(edge => parseInt(edge.target))
+  }));
+
+  console.log(outputNodes);
+  const output = { objectives: outputNodes };
+  const blob = new Blob([JSON.stringify(output, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'outputNodes.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  
 }
 
 const handleAddNode = () => {
