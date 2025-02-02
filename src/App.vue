@@ -124,8 +124,7 @@ const handleImport = () => {
             id: `edge-${node.id}-${successor}`,
             source: node.id.toString(),
             target: successor.toString(),
-            type: 'special',
-            data: { label: 'Normal Edge' }
+            type: 'special'
           });
         });
         node.mutuallyExclusiveWith.forEach(mutex => {
@@ -134,14 +133,14 @@ const handleImport = () => {
             source: node.id.toString(),
             target: mutex.toString(),
             type: 'mutex',
-            data: { label: 'Mutex Edge' }
+            data: { label: 'mutually exclusive with' }
           });
           edges.value.push({
             id: `edge-mutex-${mutex}-${node.id}`,
             source: mutex.toString(),
             target: node.id.toString(),
             type: 'mutex',
-            data: { label: 'Mutex Edge' }
+            data: { label: 'mutually exclusive with' }
           });
         });
       });
@@ -221,7 +220,7 @@ const handleConnect = (params: Connection) => {
         sourceHandle: `${params.source}-source-mutex`,
         targetHandle: `${params.target}-target-mutex`,
         type: edgeType,
-        data: { label: 'Mutex Edge' }
+        data: { label: 'mutually exclusive with' }
       });
       edges.value.push({
         id: `edge-${edgeType}-${params.target}-${params.source}`,
@@ -230,7 +229,7 @@ const handleConnect = (params: Connection) => {
         sourceHandle: `${params.target}-source-mutex`,
         targetHandle: `${params.source}-target-mutex`,
         type: edgeType,
-        data: { label: 'Mutex Edge' }
+        data: { label: 'mutually exclusive with' }
       });
     }else if(edgeType === 'special'){ //just create one edge
       edges.value.push({
@@ -239,8 +238,7 @@ const handleConnect = (params: Connection) => {
         target: params.target,
         sourceHandle: params.sourceHandle,
         targetHandle: params.targetHandle,
-        type: edgeType,
-        data: { label: 'Normal Edge' }
+        type: edgeType
       });
     }
     
