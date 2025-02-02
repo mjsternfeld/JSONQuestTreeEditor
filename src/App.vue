@@ -1,13 +1,47 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Node, Edge, Connection } from '@vue-flow/core'  
-import { VueFlow, ConnectionMode } from '@vue-flow/core'
+import type { Node, Edge, Connection, EdgeMouseEvent } from '@vue-flow/core'  
+import { VueFlow, ConnectionMode, useVueFlow } from '@vue-flow/core'
 
 // these components are only shown as examples of how to use a custom node or edge
 // you can find many examples of how to create these custom components in the examples page of the docs
 import SpecialNode from './components/SpecialNode.vue'
 import SpecialEdge from './components/SpecialEdge.vue'
 import MutexEdge from './components/MutexEdge.vue'
+
+const {onEdgeClick} = useVueFlow()
+
+let selectedEdge = ref<string>('');
+
+// bind listeners to the event handlers
+onEdgeClick((param:EdgeMouseEvent) => {
+  console.log('edge clicked', param.edge)
+  selectedEdge.value = param.edge.id;
+  console.log("new selectedEdge value: " + selectedEdge);
+})
+
+const handleDeleteEdge = (id: string) => {
+  console.log("handleDeleteEdge reached (in App.vue)");
+  if(id.includes('special')){
+    edges.value = edges.value.filter(edge => edge.id !== id)
+  }else if(id.includes('mutex')){ //delete both mutex edges
+    
+    let edgeSource = id.split('-')[2];
+    let edgeTarget = id.split('-')[3];
+    
+    let firstId = `edge-mutex-${edgeSource}-${edgeTarget}`;
+    let secondId = `edge-mutex-${edgeTarget}-${edgeSource}`;
+
+    console.log("first ID = " + firstId);
+    console.log("second ID = " + secondId);
+    
+
+    edges.value = edges.value.filter(edge => edge.id != (firstId))
+    edges.value = edges.value.filter(edge => edge.id != (secondId))
+  }
+  selectedEdge.value = '';
+  
+}
 
 // these are our nodes
 const nodes = ref<Node[]>([
@@ -241,12 +275,10 @@ const handleConnect = (params: Connection) => {
         type: edgeType
       });
     }
-    
-
-
-
   }
 }
+
+
 
 </script>
 
@@ -254,33 +286,40 @@ const handleConnect = (params: Connection) => {
   
   <div class="sidebar">
     <button class="sidebar-button" v-on:click="handleImport">Import</button>
+    <hr>
     <button class="sidebar-button" v-on:click="handleExport">Export</button>
     <hr>
     <button class="sidebar-button" v-on:click="handleAddNode">Add Node</button>
     <hr>
     <button class="sidebar-button" v-on:click="handleClear">Clear</button>
+    <hr style="margin-top: 50px; margin-bottom: 50px;">
+    <div v-if="selectedEdge" class="edge-editor">
+      <p>Selected Edge: {{ selectedEdge }}</p>
+      <button @click="handleDeleteEdge(selectedEdge)">Delete Selected Edge</button>
+    </div>
   </div>
 
   <div class="flow-container">
     <VueFlow 
     :nodes="nodes" :edges="edges"
     @connect="handleConnect"
+    @delete-edge="handleDeleteEdge"
     :connection-mode="ConnectionMode.Strict"> <!--only allow "source x target" edges-->
       <!-- bind your custom node type to a component by using slots, slot names are always `node-<type>` -->
       <template #node-special="specialNodeProps">
         <SpecialNode v-bind="specialNodeProps" />
       </template>
       <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
-      <template #edge-special="specialEdgeProps">
+      <template #edge-special="specialEdgeProps" @delete-edge="handleDeleteEdge">
         <SpecialEdge v-bind="specialEdgeProps" />
       </template>
-      <template #edge-mutex="mutexEdgeProps">
+      <template #edge-mutex="mutexEdgeProps" @delete-edge="handleDeleteEdge">
         <MutexEdge v-bind="mutexEdgeProps" />
       </template>
     </VueFlow>
   </div>
+
   
-  <div class="editor"></div>
 
 </template>
 

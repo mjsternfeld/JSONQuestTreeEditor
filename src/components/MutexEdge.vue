@@ -6,6 +6,8 @@ const props = defineProps<EdgeProps>()
 
 const path = computed(() => getBezierPath(props))
 const label = computed(() => props.data.label)
+
+
 </script>
 
 
@@ -27,3 +29,4 @@ const label = computed(() => props.data.label)
     </div>
   </EdgeLabelRenderer>
 </template>
+

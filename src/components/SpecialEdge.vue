@@ -6,9 +6,9 @@ const props = defineProps<EdgeProps>()
 
 const path = computed(() => getBezierPath(props))
 const label = computed(() => props.data.label)
+
+
 </script>
-
-
 
 <template>
   <!-- You can use the `BaseEdge` component to create your own custom edge more easily -->
@@ -28,3 +28,4 @@ const label = computed(() => props.data.label)
     </div>
   </EdgeLabelRenderer>
 </template>
+

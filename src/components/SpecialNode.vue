@@ -59,6 +59,10 @@ const props = defineProps<NodeProps>()
 
 const data = computed(() => props.data)
 
+const formattedDescription = computed(() => {
+  return description.value.replace(/\n/g, '<br>')
+})
+
 </script>
 
 
@@ -103,24 +107,27 @@ const data = computed(() => props.data)
 <template>
   <div class="vue-flow__node-default" @click="toggleEditing">
     <div v-if="isEditing" class="editing-container">
-      <input type="text" class="editing-input" v-model="description" @input="updateDescription" @click.stop/>
+      <textarea class="editing-input" v-model="description" @input="updateDescription" @click.stop></textarea>
       <label class="editing-input">
-        <input type="checkbox" v-model="isEndNode" @change="updateIsEndNode" @click.stop/>
-        Is End Node
+      <input type="checkbox" v-model="isEndNode" @change="updateIsEndNode" @click.stop/>
+      Is End Node
       </label>
       <label class="editing-input">
-        <input type="checkbox" v-model="isRequired" @change="updateIsRequired" @click.stop/>
-        Is Required
+      <input type="checkbox" v-model="isRequired" @change="updateIsRequired" @click.stop/>
+      Is Required
       </label>
       <div class="button-row">
-        <button @click.stop="saveChanges">Save changes</button>
-        <button @click.stop="discardChanges">Discard changes</button>
+      <button @click.stop="saveChanges">Save changes</button>
+      <button @click.stop="discardChanges">Discard changes</button>
       </div>      
     </div>
     <div v-else>
       <p>ID: {{ id }}</p>
-      <p>Description: {{ description }}</p>
+      <hr>
+      <p>Description: <br> <span v-html="formattedDescription"></span></p>
+      <hr>
       <p>{{ isEndNode ? "Exit Node" : "Not an exit node" }}</p>
+      <hr>
       <p>{{ isRequired ? "Required objective" : "Optional objective" }}</p>
     </div>
 

@@ -38,12 +38,12 @@
   margin: 10px;
 }
 
-.editor{
-  width: 10%;
-  height: 100%;
-  background-color: gray;
+.edge-editor{
+  width: 100%;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
 }
-
 
 #app {
   width: 100vw;
