@@ -95,7 +95,60 @@ interface OutputNode {
 
 
 const handleImport = () => {
-  console.log('Import button clicked');
+
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'application/json';
+  input.onchange = async (event: Event) => {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const outputNodes: OutputNode[] = json.objectives;
+
+      nodes.value = outputNodes.map(node => ({
+        id: node.id.toString(),
+        position: { x: Math.random() * 400, y: Math.random() * 400 },
+        data: {
+          description: node.description,
+          isRequired: node.isRequired,
+          isEndNode: node.isEndNode
+        },
+        type: 'special'
+      }));
+
+      edges.value = [];
+      outputNodes.forEach(node => {
+        node.successors.forEach(successor => {
+          edges.value.push({
+            id: `edge-${node.id}-${successor}`,
+            source: node.id.toString(),
+            target: successor.toString(),
+            type: 'special',
+            data: { label: 'Normal Edge' }
+          });
+        });
+        node.mutuallyExclusiveWith.forEach(mutex => {
+          edges.value.push({
+            id: `edge-mutex-${node.id}-${mutex}`,
+            source: node.id.toString(),
+            target: mutex.toString(),
+            type: 'mutex',
+            data: { label: 'Mutex Edge' }
+          });
+          edges.value.push({
+            id: `edge-mutex-${mutex}-${node.id}`,
+            source: mutex.toString(),
+            target: node.id.toString(),
+            type: 'mutex',
+            data: { label: 'Mutex Edge' }
+          });
+        });
+      });
+    }
+  };
+  input.click();
+
 }
 const handleExport = () => {
 
