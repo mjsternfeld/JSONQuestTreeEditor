@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Node, Edge } from '@vue-flow/core'  
+import type { Node, Edge, Connection } from '@vue-flow/core'  
 import { VueFlow, ConnectionMode } from '@vue-flow/core'
 
 // these components are only shown as examples of how to use a custom node or edge
 // you can find many examples of how to create these custom components in the examples page of the docs
 import SpecialNode from './components/SpecialNode.vue'
 import SpecialEdge from './components/SpecialEdge.vue'
+import MutexEdge from './components/MutexEdge.vue'
 
 // these are our nodes
 const nodes = ref<Node[]>([
@@ -105,15 +106,62 @@ const handleClear = () => {
   edges.value = [];
 }
 
-const handleConnect = (params: { source: string; target: string }) => { //source and target are the handles' string IDs
+const handleConnect = (params: Connection) => {
   console.log('Connection made:', params);
-  edges.value.push({
-    id: `edge-${params.source}-${params.target}`,
-    source: params.source,
-    target: params.target,
-    type: 'special',
-    data: { label: 'Edge Label' }
-  });
+
+  const sourceNode = nodes.value.find(node => node.id === params.source);
+  const targetNode = nodes.value.find(node => node.id === params.target);
+
+  if (sourceNode && targetNode) {
+
+    const sourceHandleType = params.sourceHandle?.includes('mutex') ? 'mutex' : 'normal';
+    const targetHandleType = params.targetHandle?.includes('mutex') ? 'mutex' : 'normal';
+
+    if ((sourceHandleType === 'mutex' && targetHandleType !== 'mutex') ||  //check if handle types match, don't create an edge if they don't
+      (sourceHandleType !== 'mutex' && targetHandleType === 'mutex')) {
+      console.log('Invalid connection: cannot connect mutex handle to normal handle');
+      return;
+    }
+
+    const edgeType = (sourceHandleType === 'mutex' || targetHandleType === 'mutex') ? 'mutex' : 'special';
+
+    console.log('sourceHandleType == ' + sourceHandleType + ', targetHandleType == ' + targetHandleType);
+
+    if(edgeType === 'mutex'){ //create two edges since mutual-exclusivity is symmetrical
+      edges.value.push({
+        id: `edge-${edgeType}-${params.source}-${params.target}`,
+        source: params.source,
+        target: params.target,
+        sourceHandle: `${params.source}-source-mutex`,
+        targetHandle: `${params.target}-target-mutex`,
+        type: edgeType,
+        data: { label: 'Mutex Edge' }
+      });
+      edges.value.push({
+        id: `edge-${edgeType}-${params.target}-${params.source}`,
+        target: params.source,
+        source: params.target,
+        sourceHandle: `${params.target}-source-mutex`,
+        targetHandle: `${params.source}-target-mutex`,
+        type: edgeType,
+        data: { label: 'Mutex Edge' }
+      });
+    }else if(edgeType === 'special'){ //just create one edge
+      edges.value.push({
+        id: `edge-${edgeType}-${params.source}-${params.target}`,
+        source: params.source,
+        target: params.target,
+        sourceHandle: params.sourceHandle,
+        targetHandle: params.targetHandle,
+        type: edgeType,
+        data: { label: 'Normal Edge' }
+      });
+    }
+    
+
+
+
+  }
 }
 
 </script>
@@ -138,10 +186,12 @@ const handleConnect = (params: { source: string; target: string }) => { //source
       <template #node-special="specialNodeProps">
         <SpecialNode v-bind="specialNodeProps" />
       </template>
-      
       <!-- bind your custom edge type to a component by using slots, slot names are always `edge-<type>` -->
       <template #edge-special="specialEdgeProps">
         <SpecialEdge v-bind="specialEdgeProps" />
+      </template>
+      <template #edge-mutex="mutexEdgeProps">
+        <MutexEdge v-bind="mutexEdgeProps" />
       </template>
     </VueFlow>
   </div>

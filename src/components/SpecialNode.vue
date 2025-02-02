@@ -13,6 +13,8 @@ const description = computed<string>(() => data.value.description)
 const isRequired = computed<boolean>(() => data.value.isRequired)
 
 
+const handleConnectable = () => {return true;}
+
 </script>
 
 <template>
@@ -23,15 +25,17 @@ const isRequired = computed<boolean>(() => data.value.isRequired)
       <p>Description: {{description}}</p>
     </div>
 
-
-    <Handle class="handle-top" type="target" :position="Position.Top"/>
+    <Handle :id="`${id}-target-normal`" class="handle-top" type="target" :position="Position.Top" :data="{handleType: 'normal'}" :connectable="handleConnectable"/>
+    <!-- only allow output edges if this isn't an exit node -->
+    <Handle v-if="!isRequired" :id="`${id}-source-normal`" class="handle-bottom" type="source" :position="Position.Bottom" :data="{handleType: 'normal'}" :connectable="handleConnectable"/>
+    
 
     <!--Handles for describing mutex relationships between quest nodes (objectives)-->
-    <Handle class="handle-left" type="target" :position="Position.Left"/>
-    <Handle class="handle-right" type="source" :position="Position.Right"/> 
+    <!--Mutex is not transitive! You have to connect ALL the nodes this node is mutually exclusive with-->
+    <!--This also means you ha-->
+    <Handle class="handle-left" :id="`${id}-target-mutex`" type="target" :position="Position.Left" :data="{handleType: 'mutex'}" :connectable="handleConnectable"/>
+    <Handle class="handle-right" :id="`${id}-source-mutex`" type="source" :position="Position.Left" :data="{handleType: 'mutex'}" :connectable="handleConnectable"/> 
 
-    <!-- only allow output edges if this isn't an exit node -->
-    <Handle v-if="!isRequired" class="handle-bottom" type="source" :position="Position.Bottom" />
 
   
   </div>
