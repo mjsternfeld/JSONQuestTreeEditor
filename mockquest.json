@@ -1,0 +1,27 @@
+{
+    "objectives": [
+      {
+        "id": 0,
+        "description": "Talk to the NPC",
+        "isRequired": true,
+        "successors": [1],
+        "mutuallyExclusiveWith": []
+      },
+      {
+        "id": 1,
+        "description": "Kill the totally-not-Pacman-Ghost!",
+        "isRequired": true,
+        "successors": [2],
+        "mutuallyExclusiveWith": []
+      },
+      {
+        "id": 2,
+        "description": "Talk to the NPC to finish the Quest",
+        "isRequired": true,
+        "isEndNode": true,
+        "successors": [],
+        "mutuallyExclusiveWith": []
+      }
+    ]
+}
+  
