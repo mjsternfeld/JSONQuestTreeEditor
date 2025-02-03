@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Node, Edge, Connection, EdgeMouseEvent } from '@vue-flow/core'  
+import type { Node, Edge, Connection, EdgeMouseEvent, OnConnectStartParams } from '@vue-flow/core'  
 import { VueFlow, ConnectionMode, useVueFlow } from '@vue-flow/core'
 
 // these components are only shown as examples of how to use a custom node or edge
@@ -9,15 +9,14 @@ import SpecialNode from './components/SpecialNode.vue'
 import SpecialEdge from './components/SpecialEdge.vue'
 import MutexEdge from './components/MutexEdge.vue'
 
-const {onEdgeClick} = useVueFlow()
+const {onEdgeClick} = useVueFlow() //event for selecting edges to delete them
 
+//selecting edge to display in the "delete edge" dialog
 let selectedEdge = ref<string>('');
-
-// bind listeners to the event handlers
 onEdgeClick((param:EdgeMouseEvent) => {
-  console.log('edge clicked', param.edge)
+  // console.log('edge clicked', param.edge)
   selectedEdge.value = param.edge.id;
-  console.log("new selectedEdge value: " + selectedEdge);
+  // console.log("new selectedEdge value: " + selectedEdge);
 })
 
 const handleDeleteEdge = (id: string) => {
@@ -43,81 +42,14 @@ const handleDeleteEdge = (id: string) => {
   
 }
 
-// these are our nodes
-const nodes = ref<Node[]>([
-  // // an input node, specified by using `type: 'input'`
-  // {
-  //   id: '1',
-  //   type: 'input',
-  //   position: { x: 250, y: 5 },
-  //   // all nodes can have a data object containing any data you want to pass to the node
-  //   // a label can property can be used for default nodes
-  //   data: { label: 'Node 1' },
-  // },
+//nodes for vue flow
+const nodes = ref<Node[]>([])
 
-  // // default node, you can omit `type: 'default'` as it's the fallback type
-  // {
-  //   id: '2',
-  //   position: { x: 100, y: 100 },
-  //   data: { label: 'Node 2' },
-  // },
-
-  // // An output node, specified by using `type: 'output'`
-  // {
-  //   id: '3',
-  //   type: 'output',
-  //   position: { x: 400, y: 200 },
-  //   data: { label: 'Node 3' },
-  // },
-
-  // // this is a custom node
-  // // we set it by using a custom type name we choose, in this example `special`
-  // // the name can be freely chosen, there are no restrictions as long as it's a string
-  // {
-  //   id: '4',
-  //   type: 'special', // <-- this is the custom node type name
-  //   position: { x: 400, y: 200 },
-  //   data: {
-  //     label: 'Node 4',
-  //     hello: 'world',
-  //   },
-  // },
-])
-
-// these are our edges
-const edges = ref<Edge[]>([
-  // default bezier edge
-  // consists of an edge id, source node id and target node id
-  // {
-  //   id: 'e1->2',
-  //   source: '1',
-  //   target: '2',
-  // },
-
-  // // set `animated: true` to create an animated edge path
-  // {
-  //   id: 'e2->3',
-  //   source: '2',
-  //   target: '3',
-  //   animated: true,
-  // },
-
-  // // a custom edge, specified by using a custom type name
-  // // we choose `type: 'special'` for this example
-  // {
-  //   id: 'e3->4',
-  //   type: 'special',
-  //   source: '3',
-  //   target: '4',
-
-  //   // all edges can have a data object containing any data you want to pass to the edge
-  //   data: {
-  //     hello: 'world',
-  //   }
-  // },
-])
+//edges for vue flow
+const edges = ref<Edge[]>([])
 
 
+//the data type of nodes in the output json
 interface OutputNode {
   id: number;
   description: string;
@@ -127,7 +59,7 @@ interface OutputNode {
   mutuallyExclusiveWith: number[];
 }
 
-
+//importing a set of nodes from a json file
 const handleImport = () => {
 
   const input = document.createElement('input');
@@ -140,6 +72,7 @@ const handleImport = () => {
       const json = JSON.parse(text);
       const outputNodes: OutputNode[] = json.objectives;
 
+      //fetch nodes
       nodes.value = outputNodes.map(node => ({
         id: node.id.toString(),
         position: { x: Math.random() * 400, y: Math.random() * 400 },
@@ -151,6 +84,7 @@ const handleImport = () => {
         type: 'special'
       }));
 
+      //create normal and mutex edges
       edges.value = [];
       outputNodes.forEach(node => {
         node.successors.forEach(successor => {
@@ -161,7 +95,7 @@ const handleImport = () => {
             type: 'special'
           });
         });
-        node.mutuallyExclusiveWith.forEach(mutex => {
+        node.mutuallyExclusiveWith.forEach(mutex => { //two edges since mutex is symmetrical
           edges.value.push({
             id: `edge-mutex-${node.id}-${mutex}`,
             source: node.id.toString(),
@@ -183,6 +117,7 @@ const handleImport = () => {
   input.click();
 
 }
+//format current nodes and edges into a json file compatible with the game's quest system
 const handleExport = () => {
 
   const outputNodes: OutputNode[] = nodes.value.map(node => ({
@@ -191,9 +126,9 @@ const handleExport = () => {
     isRequired: node.data.isRequired,
     isEndNode: node.data.isEndNode,
     successors: edges.value
-      .filter(edge => edge.source === node.id)
+      .filter(edge => edge.type === 'special' && edge.source === node.id)
       .map(edge => parseInt(edge.target)),
-    mutuallyExclusiveWith: edges.value
+    mutuallyExclusiveWith: edges.value //here we only need to consider outgoing mutex edges since we're setting the mutex array per-node
       .filter(edge => edge.type === 'mutex' && edge.source === node.id)
       .map(edge => parseInt(edge.target))
   }));
@@ -214,16 +149,18 @@ const handleAddNode = () => {
   console.log('AddNode button clicked');  
   nodes.value.push({
     id: (nodes.value.length + 1).toString(),
-    position: { x: Math.random() * 400, y: Math.random() * 400 },
+    position: { x: Math.random() * 100, y: Math.random() * 100 },
     data: { description: `node description` },
     type: 'special'
   });
 }
 
+//delete all nodes and edges
 const handleClear = () => {
   nodes.value = [];
   edges.value = [];
 }
+
 
 const handleConnect = (params: Connection) => {
   console.log('Connection made:', params);
@@ -231,7 +168,9 @@ const handleConnect = (params: Connection) => {
   const sourceNode = nodes.value.find(node => node.id === params.source);
   const targetNode = nodes.value.find(node => node.id === params.target);
 
-  if (sourceNode && targetNode) {
+  console.log("sourceNode = " + sourceNode + ", targetNode = " + targetNode);
+
+  if (sourceNode && targetNode) { //connect two existing nodes
 
     const sourceHandleType = params.sourceHandle?.includes('mutex') ? 'mutex' : 'normal';
     const targetHandleType = params.targetHandle?.includes('mutex') ? 'mutex' : 'normal';
@@ -329,4 +268,29 @@ const handleConnect = (params: Connection) => {
 
 /* import the default theme, this is optional but generally recommended */
 @import '@vue-flow/core/dist/theme-default.css';
+
+
+.flow-container{
+  width: 80%;
+  height: 100%;
+}
+
+
+.sidebar{
+  flex-direction: column; width:10vw; height: 100vh; background-color: gray;
+}
+
+.sidebar-button{
+  width: 90%;
+  padding: 10px;
+  margin: 10px;
+}
+
+.edge-editor{
+  width: 100%;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 </style>

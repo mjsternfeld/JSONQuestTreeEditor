@@ -83,20 +83,32 @@ const formattedDescription = computed(() => {
   line-break: auto;
 }
 
-.handle-top {
-  top: 0;
+.handle-top{
+  width: 10px;
+  height: 10px;
+  background-color: green !important;
+  color: green !important;
 }
 
-.handle-bottom {
-  bottom: 0;
+.handle-left{
+  width: 10px;
+  height: 10px;
+  background-color: yellow !important;
+  color: green !important;
 }
 
-.handle-left {
-  left: 0;
+.handle-right{
+  width: 10px;
+  height: 10px;
+  background-color: yellow !important;
+  color: red !important;
 }
 
-.handle-right {
-  right: 0;
+.handle-bottom{
+  width: 10px;
+  height: 10px;
+  background-color: red !important;
+  color: red !important;
 }
 .button-row{
   display:flex;
