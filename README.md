@@ -1,35 +1,64 @@
-# jsonquesttreeeditor
+# electron-vite-boilerplate
 
-This template should help get you started developing with Vue 3 in Vite.
+🥳 Really simple `Electron` + `Vite` boilerplate.
 
-## Recommended IDE Setup
+![screenshort.png](https://github.com/electron-vite/electron-vite-boilerplate/blob/main/public/screenshort.png?raw=true)
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Features
 
-## Type Support for `.vue` Imports in TS
+📦 Out of the box  
+🚀 Quick Start of [vite-plugin-electron](https://github.com/electron-vite/vite-plugin-electron)  
+🎯 Based on the official [template-vanilla-ts](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-vanilla-ts), less invasive  
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## Run Setup
 
 ```sh
+# clone the project
+git clone https://github.com/electron-vite/electron-vite-boilerplate.git
+
+# enter the project directory
+cd electron-vite-boilerplate
+
+# install dependency
 npm install
-```
 
-### Compile and Hot-Reload for Development
-
-```sh
+# develop
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## Directory
 
-```sh
-npm run build
+```diff
++ ├─┬ electron
++ │ ├─┬ main
++ │ │ └── index.ts    entry of Electron-Main
++ │ └─┬ preload
++ │   └── index.ts    entry of Preload-Scripts
+  ├─┬ src
+  │ └── main.ts       entry of Electron-Renderer
+  ├── index.html
+  ├── package.json
+  └── vite.config.ts
 ```
 
-<script lang="ts"></script> No idea why this tag is necessary, but it's a workaround mentioned here: https://github.com/vuejs/vitepress/issues/693
+## Be aware
+
+🚨 By default, this template integrates Node.js in the Renderer process. If you don't need it, you just remove the option below. [Because it will modify the default config of Vite](https://github.com/electron-vite/vite-plugin-electron/tree/main/packages/electron-renderer#config-presets-opinionated).
+
+```diff
+# vite.config.ts
+
+electron({
+- renderer: {}
+})
+```
+
+## FAQ
+
+- [dependencies vs devDependencies](https://github.com/electron-vite/vite-plugin-electron/tree/main/packages/electron-renderer#dependencies-vs-devdependencies)
+- [Using C/C++ native addons in Electron-Renderer](https://github.com/electron-vite/vite-plugin-electron/tree/main/packages/electron-renderer#load-nodejs-cc-native-modules)
+- [Node.js ESM packages](https://github.com/electron-vite/vite-plugin-electron/tree/main/packages/electron-renderer#nodejs-esm-packages) (e.g. `execa` `node-fetch`)
+
+## 🍵 🍰 🍣 🍟
+
+<img width="270" src="https://github.com/caoxiemeihao/blog/blob/main/assets/$qrcode/$.png?raw=true">

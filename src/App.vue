@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Node, Edge, Connection, EdgeMouseEvent, OnConnectStartParams, NodeMouseEvent } from '@vue-flow/core'  
+import type { Node, Edge, Connection, EdgeMouseEvent, NodeMouseEvent } from '@vue-flow/core'  
 import { VueFlow, ConnectionMode, useVueFlow } from '@vue-flow/core'
 
 // these components are only shown as examples of how to use a custom node or edge

@@ -1,29 +1,37 @@
 {
-  "name": "jsonquesttreeeditor",
-  "version": "0.0.0",
+  "name": "electron-vite-boilerplate",
+  "version": "2.0.0",
+  "main": "dist-electron/main.js",
+  "description": "Really simple Electron + Vite boilerplate.",
+  "author": "草鞋没号 <308487730@qq.com>",
+  "license": "MIT",
   "private": true,
-  "type": "module",
+  "keywords": [
+    "electron",
+    "rollup",
+    "vite"
+  ],
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:9999"
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
-    "preview": "vite preview",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build"
-  },
-  "dependencies": {
-    "@vue-flow/core": "^1.42.1",
-    "pinia": "^2.3.1",
-    "vue": "^3.5.13"
+    "build": "tsc --noEmit && vite build && electron-builder",
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "@tsconfig/node22": "^22.0.0",
-    "@types/node": "^22.10.7",
+    "electron": "^28.1.0",
+    "electron-builder": "^24.4.0",
+    "typescript": "^5.0.3",
+    "vite": "^5.0.10",
+    "vite-plugin-electron": "^0.15.4",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
     "@vitejs/plugin-vue": "^5.2.1",
-    "@vue/tsconfig": "^0.7.0",
-    "npm-run-all2": "^7.0.2",
-    "typescript": "~5.7.3",
-    "vite": "^6.0.11",
-    "vite-plugin-vue-devtools": "^7.7.0",
-    "vue-tsc": "^2.2.0"
+    "@vue-flow/core": "^1.42.1",
+    "pinia": "^2.3.1"
   }
 }
