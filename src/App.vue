@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Node, Edge, Connection, EdgeMouseEvent, OnConnectStartParams } from '@vue-flow/core'  
+import type { Node, Edge, Connection, EdgeMouseEvent, OnConnectStartParams, NodeMouseEvent } from '@vue-flow/core'  
 import { VueFlow, ConnectionMode, useVueFlow } from '@vue-flow/core'
 
 // these components are only shown as examples of how to use a custom node or edge
@@ -9,7 +9,20 @@ import SpecialNode from './components/SpecialNode.vue'
 import SpecialEdge from './components/SpecialEdge.vue'
 import MutexEdge from './components/MutexEdge.vue'
 
-const {onEdgeClick} = useVueFlow() //event for selecting edges to delete them
+const {onEdgeClick, onNodeClick} = useVueFlow() //event for selecting edges to delete them
+
+//selecting node for the deletenode dialog
+let selectedNode = ref<string>('');
+onNodeClick((param:NodeMouseEvent) => {
+  console.log("selected node " + param.node.id);
+  selectedNode.value = param.node.id;
+})
+
+const handleDeleteNode = (id: string) => {
+  console.log("handleDeleteNode reached with id = " + id);
+  nodes.value = nodes.value.filter(node => node.id != (id));
+  selectedNode.value = '';
+}
 
 //selecting edge to display in the "delete edge" dialog
 let selectedEdge = ref<string>('');
@@ -235,6 +248,10 @@ const handleConnect = (params: Connection) => {
     <div v-if="selectedEdge" class="edge-editor">
       <p>Selected Edge: {{ selectedEdge }}</p>
       <button @click="handleDeleteEdge(selectedEdge)">Delete Selected Edge</button>
+    </div>
+    <div v-if="selectedNode" class="edge-editor">
+      <p>Selected Node: {{ selectedNode }}</p>
+      <button @click="handleDeleteNode(selectedNode)">Delete Selected Node</button>
     </div>
   </div>
 
